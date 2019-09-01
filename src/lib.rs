@@ -35,6 +35,9 @@ pub struct Cli {
     /// The levenshtein distance to catch bad words.
     #[structopt(short, long, default_value = "1")]
     distance: usize,
+
+    #[structopt(short, long)]
+    errors_only: bool,
 }
 
 fn split_string(description: &str, start_size: usize, end_size: usize) -> (&str, &str) {
@@ -54,7 +57,7 @@ fn read_file(path: &Path) -> String {
     read_to_string(path).unwrap_or_else(|_| panic!("Failed to open {}", path.display()))
 }
 
-pub fn retrieve_input() -> (String, usize, usize) {
+pub fn retrieve_input() -> (String, usize, usize, bool) {
     let opt = Cli::from_args();
 
     // tries to find a path input, else a standard input, else just read the clipboard.
@@ -64,7 +67,7 @@ pub fn retrieve_input() -> (String, usize, usize) {
             Some(input) => input,
             None => read_clipboard()
         }
-    }, opt.size, opt.distance);
+    }, opt.size, opt.distance, opt.errors_only);
 }
 
 pub enum Event {
@@ -103,6 +106,7 @@ pub fn play_modifier(description: &str, size: usize, distance: usize) -> (String
     let mut max_distance: usize = usize::max_value();
     let mut max_word: &str = "";
 
+    // inspired from https://github.com/RobertJGabriel/Google-profanity-words
     let bad_words = ["anal", "anus", "ass", "balls", "bastard", "bitch", "bloody", "boob", "butt", "clitoris", "cock", "crap", "damn", "dildo", "dyke", "fuck", "hell", "jerk", "jizz", "labia", "lmao", "lmfao", "nigger", "nigga", "omg", "penis", "piss", "poop", "pube", "pussy", "queer", "scrotum", "sex", "shit", "slut", "spunk", "tit", "tosser", "twat", "vagina", "wank", "whore", "wtf"];
     let start_end_word = [start.split_whitespace().last().unwrap(), end.split_whitespace().nth(0).unwrap()].concat();
 
