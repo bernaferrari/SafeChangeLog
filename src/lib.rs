@@ -10,14 +10,14 @@ use distance::*;
 use structopt::StructOpt;
 
 /// Welcome to Changelog Disaster Mitigator!
-/// This tool helps you make sure your changelog messages won't confuse your users once Play Store modifies it.
-/// You might supply an input path (via --path), only an input (via --input) or nothing, in which case it will read the clipboard.
-/// You might also supply the size, in chars, that the screen will comport. In a Galaxy S9, it is 56 in portrait mode and 96 in landscape. This changes depending on screen size and font size settings. If you supply a value less than 0.
-/// Examples:
-/// cdmitigator -i "We update the Uber app as often as possible"
-/// cdmitigator -p changelog.txt
-/// cdmitigator -s96
-/// cdmitigator -s0
+/// {n}This tool helps you make sure your changelog messages won't be offensive or hilarious once Play Store modifies it.
+/// {n}You might supply an input path (via --path), only an input (via --input) or nothing. If you supply nothing, it will read from the clipboard.
+/// {n}You may supply the maximum size, in chars, that a screen can have. If you don't supply anything, it will check against every size between ~56 and 110, which should cover all cases.
+/// {n}{n}Examples:
+/// {n}cdmitigator -i "We update the Uber app as often as possible"
+/// {n}cdmitigator -p changelog.txt
+/// {n}cdmitigator -s96
+/// {n}cdmitigator -s0
 #[derive(StructOpt, Debug)]
 pub struct Cli {
     /// The path to the file that is going be read
@@ -31,6 +31,10 @@ pub struct Cli {
     /// The total size in chars for the output. Usually ranges from 50 to 110.
     #[structopt(short, long, default_value = "0")]
     size: usize,
+
+    /// The levenshtein distance to catch bad words.
+    #[structopt(short, long, default_value = "1")]
+    distance: usize,
 }
 
 fn split_string(description: &str, start_size: usize, end_size: usize) -> (&str, &str) {
@@ -50,7 +54,7 @@ fn read_file(path: &Path) -> String {
     read_to_string(path).unwrap_or_else(|_| panic!("Failed to open {}", path.display()))
 }
 
-pub fn retrieve_input() -> (String, usize) {
+pub fn retrieve_input() -> (String, usize, usize) {
     let opt = Cli::from_args();
 
     // tries to find a path input, else a standard input, else just read the clipboard.
@@ -60,30 +64,30 @@ pub fn retrieve_input() -> (String, usize) {
             Some(input) => input,
             None => read_clipboard()
         }
-    }, opt.size);
+    }, opt.size, opt.distance);
 }
 
 pub enum Event {
     Nothing,
-    Ok,
+    Shorter,
     Warning,
     Error(String, usize),
 }
 
 pub fn event_to_str(e: &Event) -> ColoredString {
     match e {
-        Event::Ok => String::from("[Ok] Input is shorter than size. Stopping...").green(),
+        Event::Shorter => String::from("[Ok] Input is shorter than size. Stopping...").green(),
         Event::Warning => String::from("[Url detected!] at end of the string. Play Store might shrink it.").yellow(),
         Event::Error(word, dist) => format!("[Bad word detected!] \"{}\" with {} distance.", word, dist).to_string().red(),
         Event::Nothing => String::from("").green(),
     }
 }
 
-pub fn play_modifier(description: &str, size: usize, bad_word_detector: bool) -> (String, Event) {
+pub fn play_modifier(description: &str, size: usize, distance: usize) -> (String, Event) {
     let len = description.len();
 
     if len < size {
-        return (description.parse().unwrap(), Event::Ok);
+        return (description.parse().unwrap(), Event::Shorter);
     };
 
     let (start, end) = if description[..len / 2].contains('\n') {
@@ -93,29 +97,27 @@ pub fn play_modifier(description: &str, size: usize, bad_word_detector: bool) ->
         split_string(description, one_third_size * 2, one_third_size)
     } else {
         // the standard split.
-        split_string(description, size / 2, size / 2)
+        split_string(description, ((size as f64) / 2.0).round() as usize, size / 2)
     };
 
     let mut max_distance: usize = usize::max_value();
     let mut max_word: &str = "";
 
-    if bad_word_detector {
-        let bad_words = ["anal", "anus", "ass", "balls", "bastard", "bitch", "bloody", "boob", "butt", "clitoris", "cock", "crap", "damn", "dildo", "dyke", "fuck", "hell", "jerk", "jizz", "labia", "lmao", "lmfao", "nigger", "nigga", "omg", "penis", "piss", "poop", "pube", "pussy", "queer", "scrotum", "sex", "shit", "slut", "spunk", "tit", "tosser", "twat", "vagina", "wank", "whore", "wtf"];
-        let start_end_word = [start.split_whitespace().last().unwrap(), end.split_whitespace().nth(0).unwrap()].concat();
+    let bad_words = ["anal", "anus", "ass", "balls", "bastard", "bitch", "bloody", "boob", "butt", "clitoris", "cock", "crap", "damn", "dildo", "dyke", "fuck", "hell", "jerk", "jizz", "labia", "lmao", "lmfao", "nigger", "nigga", "omg", "penis", "piss", "poop", "pube", "pussy", "queer", "scrotum", "sex", "shit", "slut", "spunk", "tit", "tosser", "twat", "vagina", "wank", "whore", "wtf"];
+    let start_end_word = [start.split_whitespace().last().unwrap(), end.split_whitespace().nth(0).unwrap()].concat();
 
-        for word in bad_words.iter() {
-            let distance = levenshtein(word, &start_end_word);
-            if distance < max_distance {
-                max_distance = distance;
-                max_word = word;
-            }
+    for word in bad_words.iter() {
+        let distance = levenshtein(word, &start_end_word);
+        if distance < max_distance {
+            max_distance = distance;
+            max_word = word;
         }
     }
 
-    let new_str = [start.trim_end(), "...", end.trim_start()].concat();
+    let joined_str = [start.trim_end(), "…", end.trim_start()].concat();
 
-    if bad_word_detector && max_distance <= 1 {
-        (new_str, Event::Error(max_word.to_string(), max_distance))
+    if max_distance <= distance {
+        (joined_str, Event::Error(max_word.to_string(), max_distance))
     } else {
         let warning = if end.contains("https://") || end.contains("http://") {
             Event::Warning
@@ -123,7 +125,7 @@ pub fn play_modifier(description: &str, size: usize, bad_word_detector: bool) ->
             Event::Nothing
         };
 
-        (new_str, warning)
+        (joined_str, warning)
     }
 }
 
