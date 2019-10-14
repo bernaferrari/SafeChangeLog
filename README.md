@@ -65,7 +65,7 @@ OPTIONS:
     -s, --size <size>            The total size in chars for the output. When 0, script compares against every value between 56 and 110. [default: 0]
 ```
 
-## Frequent Asked Questions
+## Frequently Asked Questions
 
 ### Scientific method?
 In a Galaxy S9 using standard display zoom and 2220x1080 resolution, it was measured 56 chars in portrait mode, 96 in landscape, 120 with reduced display zoom, 60 with increased display zoom. The script default interval is inspired by those values and should fit most devices.
