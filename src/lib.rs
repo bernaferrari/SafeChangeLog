@@ -9,15 +9,15 @@ use colored::*;
 use distance::*;
 use structopt::StructOpt;
 
-/// Welcome to Changelog Disaster Mitigator!
+/// Welcome to Safe ChangeLog Detector!
 /// {n}This tool helps you make sure your changelog messages won't be offensive or hilarious once Play Store modifies it.
-/// {n}You might supply an input path (via --path), only an input (via --input) or nothing. If you supply nothing, it will read from the clipboard.
-/// {n}You may supply the maximum size, in chars, that a screen can have. If you don't supply anything, it will check against every size between ~56 and 110, which should cover all cases.
+/// {n}You might supply the input path (via --path), the input (via --input) or nothing. If you supply nothing, it will read from the clipboard.
+/// {n}You may supply the maximum size (via -s or --size), in chars, that a screen can have. If you don't supply anything, it will check against every size between ~56 and 110, which should cover most cases.
 /// {n}{n}Examples:
-/// {n}cdmitigator -i "We update the Uber app as often as possible"
-/// {n}cdmitigator -p changelog.txt
-/// {n}cdmitigator -s96
-/// {n}cdmitigator -s0
+/// {n}safechangelog -i "We update the Uber app as often as possible"
+/// {n}safechangelog -p changelog.txt
+/// {n}safechangelog -s96
+/// {n}safechangelog --help
 #[derive(StructOpt, Debug)]
 pub struct Cli {
     /// The path to the file that is going be read
@@ -28,7 +28,7 @@ pub struct Cli {
     #[structopt(short, long)]
     input: Option<String>,
 
-    /// The total size in chars for the output. Usually ranges from 50 to 110.
+    /// The total size in chars for the output. When 0, script compares against every value between 56 and 110.
     #[structopt(short, long, default_value = "0")]
     size: usize,
 

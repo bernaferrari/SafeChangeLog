@@ -3,7 +3,7 @@
 
 use colored::*;
 
-use cdmitigator::{Event, event_to_str, play_modifier, retrieve_input};
+use safechangelog::{Event, event_to_str, play_modifier, retrieve_input};
 
 fn print_result(description: &str, size: usize, distance: usize, errors_only: bool) -> Event {
     let (refactored_str, event) = play_modifier(description, size, distance);
