@@ -3,7 +3,9 @@ Safe ChangeLog Detector
 
 Since Google Play Store was updated to the new "Empire has won" (mostly white) design, it changed how *What's New* is displayed. This has, unfortunately, caused some hilarious, NSFW and unfortunate situations. To make things worse, the new mechanism, which joins the beginning and end of string, varies between screen size, font scaling and portrait/landscape mode.
 
-<img  src="assets/filesapp.png"  width="40%"></img>  <img  src="assets/coinapp.png"  width="40%"></img>
+| Files by Google | CoinCalc |
+|:-:|:-:|
+| ![Files](assets/filesapp.png?raw=true) | ![Coin](assets/coinapp.png?raw=true) |
 
 **PayPal** ([from Reddit](https://www.reddit.com/r/mAndroidDev/comments/ctpfle/be_careful_new_play_store_joins_the_beginning_and/expwnji/))
 ```
@@ -18,20 +20,7 @@ We regularly update our app to provide you a...ss a thing, just keep your Update
 The idea of this project is to make a script that generates multiple possible outputs based on your changelog, so you can see if there is anything weird showing up. The script automatically checks for bad words and alerts you when it finds any. This way, you may have a peaceful night of sleep knowing nothing will disturb your users.
   
 ## Getting Started
-
-You might supply an input path (via --path), an input (via --input) or nothing. If you supply nothing, the script will read from the clipboard.
-You may also supply the maximum size, in chars, that a screen can have. If you don't supply anything, it will check against every size between 56 and 110, which should cover all cases.
-
 ```bash
-// uber
-$ ./safechangelog -i "We update the Uber app as often as possible to help make it faster and more reliable for you. This version includes several bug fixes and performance improvements.
-
-Love the app? Rate us! Your feedback helps us to improve the Uber app.
-Have a question? Tap Help in the Uber app or visit help.uber.com."
-
-// hotstar
-$ ./safechangelog -i "We regularly update our app to provide you an awesome video watching experience. To make sure you don't miss a thing, just keep your Updates turned on."
-
 // from file
 $ ./safechangelog -p changelog.txt
 
@@ -43,11 +32,20 @@ $ ./safechangelog -s96
 
 // help (show all commands)
 $ ./safechangelog --help
+
+// uber
+$ ./safechangelog -i "We update the Uber app as often as possible to help make it faster and more reliable for you. This version includes several bug fixes and performance improvements.
+
+Love the app? Rate us! Your feedback helps us to improve the Uber app.
+Have a question? Tap Help in the Uber app or visit help.uber.com."
+
+// hotstar
+$ ./safechangelog -i "We regularly update our app to provide you an awesome video watching experience. To make sure you don't miss a thing, just keep your Updates turned on."
 ```  
 
 | Fail | Pass |
 |:-:|:-:|
-| ![First](assets/1.png?raw=true) | ![Sec](assets/2.png?raw=true) |
+| ![Fail](assets/1.png?raw=true) | ![Pass](assets/2.png?raw=true) |
 
 ```
 $ ./safechangelog --help
