@@ -20,8 +20,7 @@ The idea of this project is to make a script that generates multiple possible ou
 ## Getting Started
 
 You might supply an input path (via --path), an input (via --input) or nothing. If you supply nothing, the script will read from the clipboard.
-
-You may also supply the maximum size, in chars, that a screen can have. If you don't supply anything, it will check against every size between ~56 and 110, which should cover all cases.
+You may also supply the maximum size, in chars, that a screen can have. If you don't supply anything, it will check against every size between 56 and 110, which should cover all cases.
 
 ```bash
 // uber
@@ -71,7 +70,7 @@ OPTIONS:
 ## Frequent Asked Questions
 
 ### Scientific method?
-In a Galaxy S9 using standard display zoom and 2220x1080 resolution, I measured 56 chars in portrait mode, 96 in landscape, 120 with reduced display zoom, 60 with increased display zoom. The script default interval is inspired by those values and should fit most devices.
+In a Galaxy S9 using standard display zoom and 2220x1080 resolution, it was measured 56 chars in portrait mode, 96 in landscape, 120 with reduced display zoom, 60 with increased display zoom. The script default interval is inspired by those values and should fit most devices.
 
 ### Why this project even exists?
 
@@ -80,6 +79,9 @@ I thought it was a good way to learn Rust. Kotlin is not good at scripting. You 
 ### Isn't it useless?
 
 I guess, yes? I mean, I don't *think* anyone will use in a regular basis, but if you do, please let me know! I would be really happy. Imagine if it were in the CI, it would be really awesome. If you need anything or would like to say thanks, just [open an issue](../../issues). I have a dream of having those stickers "used by Uber/Microsoft/Google/half the world" in a project made by me.
+
+### How do I compile the project?
+Just open this project's directory and call ```cargo build``` (or ```cargo build --release```).
 
 ### Issue tracking
 
